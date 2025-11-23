@@ -1,0 +1,30 @@
+[
+  {
+    "resource_type": "aws_s3_bucket",
+    "resource_name": "unsecure_logs",
+    "finding": "The S3 bucket is configured with the 'public-read' ACL, allowing unauthorized access to potentially sensitive log data by the entire internet.",
+    "severity": "HIGH",
+    "remediation": "Set the 'acl' attribute to 'private' and ensure that public access block settings are enabled on the bucket. Consider using bucket policies for fine-grained access control instead of ACLs."
+  },
+  {
+    "resource_type": "aws_security_group",
+    "resource_name": "open_ssh",
+    "finding": "The security group allows unrestricted inbound SSH access (port 22) from all IP addresses (0.0.0.0/0), exposing instances to brute-force attacks.",
+    "severity": "HIGH",
+    "remediation": "Restrict the 'cidr_blocks' for the SSH ingress rule to only trusted IP ranges, VPC internal CIDRs, or specific known jump hosts/VPN ranges."
+  },
+  {
+    "resource_type": "aws_security_group",
+    "resource_name": "open_ssh",
+    "finding": "The security group allows unrestricted egress traffic (all ports and protocols) to the entire internet, increasing the risk of data exfiltration or command-and-control communication if the instance is compromised.",
+    "severity": "MEDIUM",
+    "remediation": "Restrict egress rules to only necessary destinations and protocols (e.g., ports 80/443 for updates, specific database endpoints) rather than allowing 0.0.0.0/0 on all ports."
+  },
+  {
+    "resource_type": "aws_iam_user",
+    "resource_name": "admin_user",
+    "finding": "IAM user is created without mandatory Multi-Factor Authentication (MFA) enforcement, significantly increasing the risk of credential compromise and account takeover.",
+    "severity": "MEDIUM",
+    "remediation": "Implement and attach an IAM policy that denies all API calls unless the user session is authenticated using MFA."
+  }
+]
