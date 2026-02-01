@@ -1,82 +1,14 @@
 [
     {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "74d9900f3087b955b23f1f679accf654e16b35dc",
-        "human_readable_summary": "This patch corrects the control flow in the LE Secure Connections (LE SC) pairing random command handler to ensure that temporary security keys (mackey and ltk) are generated before subsequent pairing steps, even during device repairing. A previous regression caused a bypass of key generation via an ill-placed goto. It also simplifies the Just Works handling logic, ensuring user confirmation is always requested for Just Works pairings.",
-        "potential_issues": [
-            "Low risk of regression, as this patch primarily corrects a control flow bug (Fixes: eed467b517e8)."
-        ],
-        "security_flag": "MEDIUM",
-        "title": "Fix LE SC pairing mechanism by ensuring temporary mackey and ltk are generated correctly during repairing."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "dd6dda907d099a11c5f9cfd7d12ea1471450499",
-        "human_readable_summary": "This patch fixes a potential kernel crash (NULL pointer dereference) in the MediaTek Bluetooth USB driver by adding a NULL check for the ISO packet interface (btmtk_data->isopkt_intf) within the btusb_mtk_claim_iso_intf() function. This prevents passing a bad pointer to locking mechanisms if interface initialization failed.",
-        "potential_issues": [],
-        "security_flag": "NONE",
-        "title": "Avoid NULL pointer dereference in btusb_mtk_claim_iso_intf by checking for interface existence."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "395be82a59e763728520e513c0a449d817da25ed",
-        "human_readable_summary": "This patch integrates the HCI Driver protocol into the Intel PCIe Bluetooth driver (btintel_pcie), enabling user space applications to fetch basic driver information via the HCI_DRV_OP_READ_INFO command.",
-        "potential_issues": [],
-        "security_flag": "NONE",
-        "title": "Introduce HCI Driver protocol support for the Intel PCIe Bluetooth driver."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "1819d1f7c1f48e4d394400f471557faecc9f2517",
-        "human_readable_summary": "This patch resolves a Use-After-Free (UAF) bug in the HCI packet receive path, where a concurrently running task could delete an hci_conn structure while the RX worker was still using it. The fix refactors the connection lookup and reference holding (for ACL, SCO, and ISO data) by moving it from the HCI core layer to the specific protocol layers (L2CAP, SCO, ISO), ensuring that the hci_dev_lock protects the lookup and acquisition of a safe reference count before protocol processing begins.",
-        "potential_issues": [
-            "Significant refactoring of core Bluetooth RX path logic; needs careful review to ensure correct locking and reference counting semantics are preserved across L2CAP, SCO, and ISO protocols."
-        ],
+        "commit_hash": "N/A",
+        "title": "mm: memory: Potential Use-After-Free due to missing state update",
+        "affected_subsystem": "Memory Management (mm)",
         "security_flag": "HIGH",
-        "title": "Fix Use-After-Free vulnerability in HCI data packet receive path by serializing connection lookup and hold."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "5a7903c042697ad52d99ccafb5d998a40bd60944",
-        "human_readable_summary": "This patch adds full support for the Bluetooth LE Extended Feature Set, including updating core structures to handle a larger 248-byte feature array and implementing handlers for the new commands HCI_LE_Read_All_Local_Supported_Features and HCI_LE_Read_All_Remote_Features, along with their respective completion events. This enables feature negotiation for devices conforming to Bluetooth 6.0 standards.",
         "potential_issues": [
-            "This introduces significant new logic for LE feature exchange during connection setup and requires thorough testing, especially regarding compatibility and fallback mechanisms with older LE specifications."
+            "Use-After-Free (UAF)",
+            "Memory Corruption",
+            "Stale Pointer Access"
         ],
-        "security_flag": "NONE",
-        "title": "Implement support for Bluetooth LE Extended Feature Set (LL Extended Feature Set)."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "afef3555df21a7632832da817222b6225c0f536c",
-        "human_readable_summary": "This patch fixes a robustness issue in the HCI command queue where the command timeout timer was incorrectly triggered for the internal HCI_OP_NOP command. By checking the opcode, the patch ensures the timer is only armed for actual controller commands, preventing erroneous controller resets.",
-        "potential_issues": [],
-        "security_flag": "NONE",
-        "title": "Prevent the HCI command timer from being incorrectly armed for HCI_OP_NOP commands."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "529ac8e706c3062d3a8af0739f05911aacffa845",
-        "human_readable_summary": "This patch resolves a kernel crash (NULL pointer dereference) in the MediaTek btusb driver during the release of the ISO interface, typically triggered during reset tests or abnormal device drop. It introduces explicit NULL checks for hdev, btmtk_data, isopkt_skb, and isopkt_intf before attempting to free or release them.",
-        "potential_issues": [],
-        "security_flag": "NONE",
-        "title": "Prevent kernel crash by adding NULL checks before releasing MediaTek ISO interface resources."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "aad8651d0f7e566bb500b89f41221513ffeab350",
-        "human_readable_summary": "This patch replaces an insecure kmalloc() call involving open-coded multiplication with kmalloc_array() in the Broadcom Bluetooth driver firmware loading path. This mitigates the risk of an integer overflow leading to an undersized buffer allocation and subsequent buffer overflow.",
-        "potential_issues": [],
-        "security_flag": "LOW",
-        "title": "Use kmalloc_array() in btbcm driver to prevent potential integer overflow during memory allocation."
-    },
-    {
-        "affected_subsystem": "Bluetooth",
-        "commit_hash": "d6422a746fcd5d846bbb16c43f4969205ab38f89",
-        "human_readable_summary": "This patch updates the Realtek Bluetooth driver to prevent loading separate configuration files for security-enabled chips (where key_id is non-zero). Since security chips require digitally signed firmware, external configuration files are typically unsupported and unnecessary, streamlining the initialization process for these specific hardware variants.",
-        "potential_issues": [
-            "Modification of the RTL_SEC_PROJ command definition (0x0D to 0xAD) might be sensitive. Incorrectly skipping configuration loading could potentially affect features if the security chip relies on certain configurations applied via firmware update but requires a specific initialization sequence."
-        ],
-        "security_flag": "LOW",
-        "title": "Realtek btrtl driver avoids loading config files for Bluetooth chips with security features enabled."
+        "human_readable_summary": "The patch introduces a condition to check the page reference count before freeing data, but it incorrectly removes the line that updates the page state to PAGE_FREE. This leaves the page structure in an inconsistent state where it may appear active to other parts of the kernel while its internal data buffer has been deallocated, resulting in a Use-After-Free vulnerability."
     }
 ]
