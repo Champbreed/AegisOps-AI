@@ -1,0 +1,22 @@
+Terraform will perform the following actions:
+
+  # aws_instance.web_server will be updated in-place
+  ~ resource "aws_instance" "web_server" {
+      ~ instance_type = "t3.micro" -> "p3.8xlarge"
+      ~ tags = {
+          "Environment" = "Dev" -> "Production"
+        }
+    }
+
+  # aws_security_group.allow_all will be created
+  + resource "aws_security_group" "allow_all" {
+      + name = "open-access"
+      + ingress {
+          + from_port   = 0
+          + to_port     = 0
+          + protocol    = "-1"
+          + cidr_blocks = ["0.0.0.0/0"]
+        }
+    }
+
+Plan: 1 to add, 1 to change, 0 to destroy.
