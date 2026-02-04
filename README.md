@@ -72,6 +72,5 @@ python3 main.py
 ⚖️ License
 Distributed under the MIT License. See LICENSE for more information.
 
-Author: Simon Essien (@Champbreed) EOF
-
+Author: Simon Essien (@Champbreed) 
 
