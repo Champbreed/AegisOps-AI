@@ -54,16 +54,19 @@ AegisOps-AI leverages the **Google GenAI SDK** to implement a "Reasoning Path" f
    ```
 Environment Setup:
 
-Bash
+```Bash
 python3 -m venv venv
 source venv/bin/activate
 pip install google-genai python-dotenv
+```
+
 API Configuration: Create a .env file in the root directory:
 
 ```Bash
 echo "GEMINI_API_KEY='your_api_key_here'" > .env
 ```
 🏁 Operational Dashboard
+
 To execute the full suite of agents in sequence and generate all security reports:
 
 ```Bash
