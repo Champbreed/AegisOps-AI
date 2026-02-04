@@ -2,16 +2,15 @@ name: DevSecOps & FinOps Guardrails
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -20,23 +19,20 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install google-genai python-dotenv
 
-      - name: Run FinOps & Cost Audit (Project 3)
+      - name: Run FinOps & Cost Audit
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python3 cost_auditor.py
 
-      - name: Run K8s Security Hardener (Project 4)
+      - name: Run Kernel Patch Audit
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 patch_analyzer.py
+
+      - name: Run K8s Security Hardener
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python3 k8s_policy_generator.py
-
-      - name: Upload Audit Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: audit-results
-          path: |
-            cost_drift_report.json
-            hardened_deployment.yaml
-            enforcement_policy_summary.txt
