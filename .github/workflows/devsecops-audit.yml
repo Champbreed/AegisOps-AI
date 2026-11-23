@@ -6,33 +6,33 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
-  audit:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          python-version: '3.10'
-
-      - name: Install Dependencies
+          go-version-file: go.mod
+      - name: Vet and test
         run: |
-          python -m pip install --upgrade pip
-          pip install google-genai python-dotenv
+          go vet ./...
+          go test ./...
 
-      - name: Run FinOps & Cost Audit
+  audit:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      # Exits non-zero if any audit stage fails or a HIGH/CRITICAL finding
+      # is reported, so the check blocks the merge.
+      - name: Run AegisOps audits
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python3 cost_auditor.py
-
-      - name: Run Kernel Patch Audit
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python3 patch_analyzer.py
-
-      - name: Run K8s Security Hardener
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python3 k8s_policy_generator.py
+        run: go run ./cmd/aegisops
